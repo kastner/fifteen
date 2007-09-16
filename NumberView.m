@@ -6,9 +6,14 @@
   
   oOrigin = frame.origin;
   
-  NSString *s = [NSString stringWithFormat:@"<div style='background-color:#444; text-align:center; font-size:28pt; padding-top:10px; width: %.fpx; height: %.fpx;'>%i</p>", frame.size.width, frame.size.height, theNumber];
-  [self setEditable:NO];
-  [self setHTML:s];
+  // NSString *s = [NSString stringWithFormat:@"<div style='background-color:#444; text-align:center; font-size:28pt; padding-top:10px; width: %.fpx; height: %.fpx;'>%i</p>", frame.size.width, frame.size.height, theNumber];
+  // [self setEditable:NO];
+  // [self setHTML:s];
+  
+  if (theNumber > 0) {
+    NSString *img = [NSString stringWithFormat:@"tile%i.png", theNumber];
+    [self setImage: [UIImage applicationImageNamed:img]];    
+  }
   
   number = theNumber;
   NSLog(@"num: %i", theNumber);

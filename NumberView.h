@@ -1,7 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <UIKit/UIView-Geometry.h>
 #import <UIKit/UIView-Animation.h>
-#import <UIKit/UITextView.h>
+// #import <UIKit/UITextView.h>
 #import <UIKit/UIAnimator.h>
 #import <UIKit/UITransformAnimation.h>
 #import <UIKit/UIAnimation.h>
@@ -13,7 +13,7 @@ typedef enum {
   kUIAnimationCurveLinear
 } UIAnimationCurve;
 
-@interface NumberView : UITextView
+@interface NumberView : UIImageView
 {
   int number;
   CGPoint oOrigin;

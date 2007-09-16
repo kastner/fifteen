@@ -40,7 +40,7 @@
 {
   // [textView setText:@"dropping"];
   
-  int threshold = 9;
+  int threshold = 12;
   int x,y = 0;
   
   if (toAngle <= (0 + threshold) && toAngle > (0 - threshold)) {
@@ -138,7 +138,7 @@
 
 - (CGPoint) spotForX:(int) x y:(int) y
 {
-  return CGPointMake(x * blockSize, y * blockSize + 50.0f);
+  return CGPointMake(x * blockSize + 6.0f, y * blockSize + 50.0f);
 }
 
 - (void) applicationDidFinishLaunching: (id) unused
@@ -179,7 +179,7 @@
         continue;
       }
       NumberView *tv = [[NumberView alloc] initWithFrame: CGRectMake(origin.x, origin.y, blockSize, blockSize) andNumber: theNumber];
-      [tv setDelegate: self];
+      // [tv setDelegate: self];
       [textView addSubview: tv];
       board[x][y] = tv;
     }
@@ -213,7 +213,13 @@
 
 - (void) checkPieces
 {
-  [textView setText: @""];
+  if (moves < 4) {
+    [textView setText: @"Tilt your phone."];
+  }
+  else {
+    [textView setText: @""];
+  }
+  
   // NSString *xstring = [NSString stringWithFormat:@"checking... angle:%f", angle];
   // [textView setText:xstring];
   [self dropBlockInDirection: angle];

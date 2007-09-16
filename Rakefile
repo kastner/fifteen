@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'net/ssh'
 require 'open3'
+require 'open-uri'
 
 IPHONE = "iphone"
 HEAVENLY = "/Developer/SDKs/iPhone/heavenly"
@@ -16,12 +17,19 @@ LDFLAGS = "-Wl,-syslibroot,#{HEAVENLY} -lobjc \
 
 TARGET = Dir.pwd[/[^\/]+$/]
 
+def version
+  info = open('skel/Info.plist').read
+  match = info.match(/CFBundleVersion.+?<string>(.+?)</im)
+  (match) ? match[1] : "1.0"
+end
+
 task :default => [:build_install_and_test]
 
 task :clean do
   puts "Deleting #{TARGET}"
   File.delete(TARGET) if File.exists?(TARGET)
   `rm *.o`
+  `rm *.zip` #cheap but works
 end
 
 o_files = []
@@ -47,7 +55,7 @@ task :package do
 end
 
 task :release => ["package"] do
-  sh %Q{zip -r #{TARGET}.zip #{TARGET}.app/}
+  sh %Q{zip -9yr #{TARGET}-#{version}.zip #{TARGET}.app/}
 end
 
 task :copy_to_iphone do
