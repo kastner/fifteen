@@ -9,7 +9,9 @@ LD = CC
 CXX = "/usr/local/arm-apple-darwin/bin/g++"
 CFLAGS = "-fsigned-char"
 CPPFLAGS = ""
-LDFLAGS = "-Wl,-syslibroot,#{HEAVENLY} -lobjc -framework CoreGraphics -framework GraphicsServices -framework CoreFoundation -framework Foundation -framework UIKit -framework PhotoLibrary -framework MusicLibrary"
+LDFLAGS = "-Wl,-syslibroot,#{HEAVENLY} -lobjc \
+  -framework CoreFoundation -framework Foundation \
+  -framework UIKit -framework CoreGraphics"
 
 
 TARGET = Dir.pwd[/[^\/]+$/]

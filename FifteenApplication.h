@@ -1,16 +1,15 @@
-#import <Foundation/Foundation.h>
-#import <GraphicsServices/GraphicsServices.h>
 #import <UIKit/UIKit.h>
-#import <UIKit/UIApplication.h>
-#import <UIKit/UITextView.h>
-#import <UIKit/UIView.h>
-#import <UIKit/UIView-Gestures.h>
-#import <UIKit/UIImageView.h>
-#import <UIKit/UINavigationBar.h>
-#import <UIKit/UITransitionView.h>
-#import "ImageBox.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIScroller.h>
+#import <CoreSurface/CoreSurface.h>
+#import <UIKit/UITile.h>
 
-@interface FifteenApplication : UIApplication {
+#import <UIKit/UITiledView.h>
+#import <UIKit/UIView-Internal.h>
+#import <UIKit/UIView-Hierarchy.h>
+#include <math.h>
+
+@interface TileView : UIApplication {
 }
 
 @end
