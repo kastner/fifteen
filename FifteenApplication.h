@@ -10,6 +10,7 @@
   float blockSize;
   int numBlocks;
   NumberView *board[4][4];
+  CGPoint lastHole;
 }
 
 - (CGPoint) spotForX:(int) x y:(int) y;
