@@ -12,8 +12,9 @@
 - (id)initWithCGPoint:(CGPoint)point 
 {
   [super init];
-  x = point.x;
-  y = point.y;
+  x = (int )point.x;
+  y = (int )point.y;
+  // NSLog(@"here... x:%i y:%i", x, y);
   return self;
 }
 
@@ -33,10 +34,12 @@
   int endY = (int)end.y;
   
   CGPoint newO = [self spotForX: endX y: endY];
-  [board[startX][startY] slideTo: [self spotForX: endY y: endY]];
-  NSLog(@"going to: %i/%i: %.f, %.f", (int)end.x, (int)end.y, newO.x, newO.y);
+  [board[startX][startY] slideTo: [self spotForX: endX y: endY] from: [self spotForX: startX y: startY]];
+  NSLog(@"going to: %i/%i: %.f, %.f from: %i/%i\n\n\n", (int)end.x, (int)end.y, newO.x, newO.y, (int)start.x, (int)start.y);
+  
+  NumberView *t = board[endX][endY];
   board[endX][endY] = board[startX][startY];
-  board[startX][startY] = nil;
+  board[startX][startY] = t;
 }
 
 - (void) moveBlockToOpen:(CGPoint) block
@@ -46,13 +49,12 @@
 
 - (void) moveRandomBlockToOpen
 {
-  NSLog(@"Random move!");
+  srand(time(0));
+  
   NSMutableArray *canidates = [[NSMutableArray alloc] init];
   CGPoint open = [self openSpot];
-  int oX = open.x;
-  int oY = open.y;
-  
-  NSLog(@"openX: %.f  openY: %.f", [self openSpot].x, [self openSpot].y);
+  int oX = (int)open.x;
+  int oY = (int)open.y;
   
   int x,y;
   for (y=-1; y<=1; y++) {
@@ -60,11 +62,12 @@
       // NSLog(@"%@", board[x+oX][y+oY]);
       int checkX = x + oX;
       int checkY = y + oY;
-      NSLog(@"checkX: %i checkY: %i", checkX, checkY);
-      if (checkX < numBlocks && checkY < numBlocks && checkX >= 0 && checkY >= 0) {
+      NSLog(@"checkX: %i checkY: %i (%i, %i)", checkX, checkY, x, y);
+       // && (oX != checkX && oX != checkY)
+      if (checkX < numBlocks && checkY < numBlocks && checkX >= 0 && checkY >= 0 && abs(x) != abs(y)) {
         NSLog(@"   ------MADE IT.");
-        if (board[checkX][checkY] != nil) {
-          [canidates addObject: [[MyPoint alloc] initWithCGPoint: CGPointMake(x,y)]];
+        if ([board[checkX][checkY] number] != -1) {
+          [canidates addObject: [[MyPoint alloc] initWithCGPoint: CGPointMake(checkX, checkY)]];
         }        
       }
     }
@@ -72,12 +75,20 @@
   
   int count = [canidates count];
   int random = rand() % count;
+  // NSLog(@"%i/%i winner", (int)[[canidates objectAtIndex: random] asCGPoint].x, (int)[[canidates objectAtIndex: random] asCGPoint].y);
+  [self moveBlockToOpen: [[canidates objectAtIndex: random]asCGPoint]];
+  // if (count == 2) {
+  //   [self moveBlockToOpen: CGPointMake(2,3)];
+  // }
+  // else {
+  //   [self moveBlockToOpen: CGPointMake(3,3)];
+  // }
   [self moveBlockToOpen: [[canidates objectAtIndex: random]asCGPoint]];
 }
 
 - (CGPoint) spotForX:(int) x y:(int) y
 {
-  return CGPointMake(x * blockSize, y * blockSize + 100.0f);
+  return CGPointMake(x * blockSize, y * blockSize + 50.0f);
 }
 
 - (void) applicationDidFinishLaunching: (id) unused
@@ -97,6 +108,11 @@
   numBlocks = 4;
   blockSize = 77.0f;
   
+  // int j;
+  // for (j = 0; j < numBlocks; j++) { 
+  //   board[j] = malloc(numBlocks * sizeof(int *)); 
+  // }
+  
   int x,y;
   for (y=0; y<numBlocks; y++) {
     for (x=0; x<numBlocks; x++) {
@@ -106,7 +122,10 @@
       CGPoint origin = [self spotForX:x y:y];
       NSLog(@"%i/%i = %.f, %.f", x, y, origin.x, origin.y);
 
-      if (theNumber == 16) { continue; }
+      if (theNumber == numBlocks * numBlocks) { 
+        board[x][y] = [[NumberView alloc] initWithFrame: CGRectMake(-100, -100, blockSize, blockSize) andNumber: -1];
+        continue;
+      }
       // NSLog(@"theNumber: %i", theNumber);
       NumberView *tv = [[NumberView alloc] initWithFrame: CGRectMake(origin.x, origin.y, blockSize, blockSize) andNumber: theNumber];
       // [tv setText:[NSString stringWithFormat:@"%i", theNumber]];
@@ -114,6 +133,7 @@
       board[x][y] = tv;
     }
   }
+  // board[numBlocks-1][numBlocks-1] = nil;
   // [self moveBlockToOpen:CGPointMake(3,2)];
   // [board[3][2] moveTo: CGPointMake(10.0f, 10.0f)];
   // [self moveBlockAt:CGPointMake(3,2) to:CGPointMake(3,3)];
@@ -122,11 +142,17 @@
   // [self moveBlockAt:CGPointMake(1,2) to:CGPointMake(2,2)];
   // [self moveBlockAt:CGPointMake(1,1) to:CGPointMake(1,2)];
   int i;
-  for (i=0; i<10; i++) {
-    // [NSTimer scheduledTimerWithTimeInterval:i target:self selector:@selector(moveRandomBlockToOpen) userInfo:nil repeats:NO];
-  }
+  // for (i=0; i<10; i++) {
+    [NSTimer scheduledTimerWithTimeInterval:.3 target:self selector:@selector(moveRandomBlockToOpen) userInfo:nil repeats:YES];
+  // }
   
-  CGPoint p = [self openSpot];
+  // [self moveBlockToOpen: CGPointMake(3,2)];
+  // [self moveBlockToOpen: CGPointMake(3,3)];
+  // CGPoint p = [self openSpot];
+  // [self moveRandomBlockToOpen];
+  // - (void) moveBlockAt:(CGPoint) start to:(CGPoint) end
+    // [self moveBlockAt:CGPointMake(1,3) to:CGPointMake(1,2)];
+  [self openSpot];
   [mainView addSubview: textView];
   [window setContentView:mainView];
   [window setNeedsDisplay];  
@@ -134,15 +160,14 @@
 
 - (CGPoint) openSpot
 {
+  // NSLog(@"Open spot");
   int x,y;
+  // NSLog(@"%@", board[3][3]);
   for (y=0; y<numBlocks; y++) {
     for (x=0; x<numBlocks; x++) {
-      if (board[x][y] == nil) {
+      if ([board[x][y] number] == -1) {
         NSLog(@"**Open spot: %i, %i", x, y);
         return CGPointMake(x,y);
-      }
-      else {
-        NSLog(@"bbb %@: %i, %i", board[x][y], x, y);
       }
     }
   }

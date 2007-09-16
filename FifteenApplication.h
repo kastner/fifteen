@@ -9,7 +9,7 @@
 @interface FifteenApplication : UIApplication {
   float blockSize;
   int numBlocks;
-  NumberView *board[3][3];
+  NumberView *board[4][4];
 }
 
 - (CGPoint) spotForX:(int) x y:(int) y;
