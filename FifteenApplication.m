@@ -1,98 +1,59 @@
 #import "FifteenApplication.h"
 
-@interface NumberTile : UITile
+@interface NumberView : UITextView
 {
   int number;
 }
+- initWithFrame:(CGRect) frame andNumber:(int) theNumber;
 @end
 
-@implementation NumberTile
-
-- (id)initWithFrame:(struct CGRect)frame andNumber:(int) theNumber
-{
-  self = [super initWithFrame:frame];
+@implementation NumberView
+- initWithFrame:(CGRect) frame andNumber:(int) theNumber {
+  [super initWithFrame: frame];
+  NSString *s = [NSString stringWithFormat:@"<div style='background-color:#444; text-align:center; font-size:28pt; padding-top:10px; width: %.fpx; height: %.fpx;'>%i</p>", frame.size.width, frame.size.height, theNumber];
+  // NSLog(s);
+  // [tv setMarginTop: 1];
+  [self setHTML:s];
+  
   number = theNumber;
+  NSLog(@"num: %i", theNumber);
   return self;
 }
-
-- (void)drawRect:(struct CGRect)rect
-{
-  CGContextRef context = UICurrentContext();
-  float r = (float)(rand() % 100) / 100.0;
-  float g = (float)(rand() % 100) / 100.0;
-  float b = (float)(rand() % 100) / 100.0;
-  CGContextSetRGBFillColor(context, r, g, b, 1.0);
-  CGContextFillRect(context, rect);
-}
-
 @end
 
-@interface SomeTiledView : UITiledView
-{
-}
-@end
-
-@implementation SomeTiledView
-
-- (id)initWithFrame:(struct CGRect)rect
-{
-  // width and height of each tile
-  float w = 30;
-  float h = 30; //ceil(rect.size.height / 40);
-
-  self = [super initWithFrame:rect];
-  [self setFirstTileSize:CGSizeMake(w, h)];
-  [self setOpaque:YES];
-  [self setNeedsDisplay];
-  [self setNeedsLayout];
-// Interesting when not drawing
- // [self setDrawsGrid:YES];
-  [self setTileSize:CGSizeMake(w, h)];
-  [self setTileDrawingEnabled:YES];
-  [self setTilingEnabled:YES];
-  return self;
-}
-
-- (void)logRect:(struct CGRect)rect;
-{
-  NSLog(@"(%f,%f) -> (%f,%f)", rect.origin.x, rect.origin.y,
-        rect.size.width, rect.size.height);
-}
-
-+ (Class)tileClass
-{
-  return [NumberTile class];
-}
-
-@end
-
-@implementation TileView
+@implementation FifteenApplication
 
 - (void) applicationDidFinishLaunching: (id) unused
 {
-  NSLog(@"applicationDidFinishLaunching");
 
   CGRect rect = [UIHardware fullScreenApplicationContentRect];
   rect.origin.x = rect.origin.y = 0;
+  NSLog(@"x:%.f y:%.f w:%.f h:%.f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
   UIWindow *window = [[UIWindow alloc] initWithContentRect:rect];
   [window orderFront: self];
   [window makeKey: self];
   [window _setHidden: NO];
 
-  UIScroller* scroller = [[UIScroller alloc] initWithFrame:rect];
-
-  // Make some scrollz!!!1!!!!!11
-  rect.size.height += 200; 
-
-  SomeTiledView* view = [[SomeTiledView alloc] initWithFrame:rect];
-
-  [scroller setContentSize:rect.size];
-  [scroller addSubview:view];
-  [scroller setAllowsRubberBanding:YES];
-  [scroller displayScrollerIndicators];
-
-  [window setContentView:scroller];
-  [window setNeedsDisplay];
+  UIView *mainView = [[UIView alloc] initWithFrame: rect];
+  UITextView *textView = [[UITextView alloc] initWithFrame: rect];
+  
+  // 80
+  float size = 77.0f;
+  int x,y;
+  for (y=0; y<4; y++) {
+    for (x=0; x<4; x++) {
+      int theNumber = x + 1 + (y * 4);
+      if (theNumber == 16) { continue; }
+      // NSLog(@"theNumber: %i", theNumber);
+      NumberView *tv = [[NumberView alloc] initWithFrame: CGRectMake(x * size, y * size + 100.0f, size, size) andNumber: theNumber];
+      // [tv setText:[NSString stringWithFormat:@"%i", theNumber]];
+      [textView addSubview: tv];
+    }
+  }
+  
+  [mainView addSubview: textView];
+  [window setContentView:mainView];
+  [window setNeedsDisplay];  
 }
 
 @end
