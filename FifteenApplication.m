@@ -14,7 +14,6 @@
   [super init];
   x = (int )point.x;
   y = (int )point.y;
-  // NSLog(@"here... x:%i y:%i", x, y);
   return self;
 }
 
@@ -35,7 +34,7 @@
   
   CGPoint newO = [self spotForX: endX y: endY];
   [board[startX][startY] slideTo: [self spotForX: endX y: endY] from: [self spotForX: startX y: startY]];
-  NSLog(@"going to: %i/%i: %.f, %.f from: %i/%i\n\n\n", (int)end.x, (int)end.y, newO.x, newO.y, (int)start.x, (int)start.y);
+  // NSLog(@"going to: %i/%i: %.f, %.f from: %i/%i\n\n\n", (int)end.x, (int)end.y, newO.x, newO.y, (int)start.x, (int)start.y);
   
   NumberView *t = board[endX][endY];
   board[endX][endY] = board[startX][startY];
@@ -61,11 +60,9 @@
     for (x=-1; x<=1; x++) {
       int checkX = x + oX;
       int checkY = y + oY;
-      NSLog(@"About to check %i/%i", checkX, checkY);
-      if (checkX == (int)lastHole.x && checkY == (int)lastHole.y) { NSLog(@"Skipped last hole"); continue; }
+      if (checkX == (int)lastHole.x && checkY == (int)lastHole.y) { continue; }
       if (checkX < numBlocks && checkY < numBlocks && checkX >= 0 && checkY >= 0 && abs(x) != abs(y)) {
         if ([board[checkX][checkY] number] != -1) {
-          NSLog(@"---made it");
           [canidates addObject: [[MyPoint alloc] initWithCGPoint: CGPointMake(checkX, checkY)]];
         }        
       }
@@ -76,7 +73,6 @@
   int random = rand() % count;
 
   lastHole = [self openSpot];
-  NSLog(@"Setting lastHole: %i, %i", (int) lastHole.x, (int) lastHole.y);
   
   [self moveBlockToOpen: [[canidates objectAtIndex: random]asCGPoint]];
   
