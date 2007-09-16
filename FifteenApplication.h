@@ -4,8 +4,15 @@
 #import <UIKit/UIView-Hierarchy.h>
 #import <UIKit/UITextView.h>
 #include <math.h>
+#import "NumberView.h"
 
 @interface FifteenApplication : UIApplication {
+  float blockSize;
+  int numBlocks;
+  NumberView *board[3][3];
 }
+
+- (CGPoint) spotForX:(int) x y:(int) y;
+- (CGPoint) openSpot;
 
 @end
