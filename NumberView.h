@@ -6,6 +6,9 @@
 #import <UIKit/UITransformAnimation.h>
 #import <UIKit/UIAnimation.h>
 
+// constants
+#define MOVESPEED 0.5
+
 typedef enum {
   kUIAnimationCurveEaseInEaseOut,
   kUIAnimationCurveEaseIn,
@@ -13,7 +16,7 @@ typedef enum {
   kUIAnimationCurveLinear
 } UIAnimationCurve;
 
-@interface NumberView : UIImageView
+@interface NumberView : UIControl
 {
   int number;
   CGPoint oOrigin;

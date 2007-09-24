@@ -1,4 +1,5 @@
 #import "FifteenApplication.h"
+#include <time.h>
 
 @interface MyPoint : NSObject
 {
@@ -40,7 +41,7 @@
 {
   // [textView setText:@"dropping"];
   
-  int threshold = 12;
+  int threshold = 38;
   int x,y = 0;
   
   if (toAngle <= (0 + threshold) && toAngle > (0 - threshold)) {
@@ -82,12 +83,27 @@
   }
   
 }
+
+- (void) doneMoving
+{
+  NSLog(@"in done moving");
+  if (!isMixing) {
+    isMoving = NO;
+    [self checkPieces];
+    // timer = [NSTimer scheduledTimerWithTimeInterval:.5 target:self selector:@selector(checkPieces) userInfo:nil repeats:YES];
+  }
+}
+
 - (void) moveBlockAt:(CGPoint) start to:(CGPoint) end
 {
   int startX = (int)start.x;
   int startY = (int)start.y;
   int endX = (int)end.x;
   int endY = (int)end.y;
+  
+  isMoving = YES;
+  // [timer invalidate];
+  [NSTimer scheduledTimerWithTimeInterval:MOVESPEED + 0.2 target:self selector:@selector(doneMoving) userInfo:nil repeats:NO];
   
   CGPoint newO = [self spotForX: endX y: endY];
   [board[startX][startY] slideTo: [self spotForX: endX y: endY] from: [self spotForX: startX y: startY]];
@@ -138,12 +154,14 @@
 
 - (CGPoint) spotForX:(int) x y:(int) y
 {
-  return CGPointMake(x * blockSize + 6.0f, y * blockSize + 50.0f);
+  return CGPointMake(x * blockSize + 6.0f, y * blockSize + 25.0f);
 }
 
 - (void) applicationDidFinishLaunching: (id) unused
 {
 
+  isMoving = NO;
+  
   CGRect rect = [UIHardware fullScreenApplicationContentRect];
   rect.origin.x = rect.origin.y = 0;
   NSLog(@"x:%.f y:%.f w:%.f h:%.f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
@@ -153,11 +171,44 @@
   [window _setHidden: NO];
 
   UIView *mainView = [[UIView alloc] initWithFrame: rect];
-  textView = [[UITextView alloc] initWithFrame: rect];
+  
+  UIImageView	*background = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, rect.size.width, rect.size.height)];
+  
+	navBar = [[UINavigationBar alloc] init];
+	[navBar setFrame:CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, 45.0f)];
+  [navBar setBarStyle:0];
+  // [navBar setImage:[UIImage applicationImageNamed:@"navbar.png"]];
+	
+	[navBar setDelegate:self];
+	[navBar enableAnimation];
+	
+	navBarTitle = [[UINavigationItem alloc] init];
+	[navBar pushNavigationItem:navBarTitle];
+	
+  [navBar setDelegate: self];
+	
+	[mainView addSubview:navBar];
+  
+  textView = [[UITextView alloc] initWithFrame: CGRectMake(rect.origin.x, 45.0f, rect.size.width, (rect.size.height - 45.0f))];
   [textView setEditable:NO];
   
-  [textView setDelegate: self];
+  // [textView setDelegate: self];
   
+  [background setImage:[UIImage applicationImageNamed:@"bg.png"]];	
+	[textView addSubview:background];
+	[background release];
+
+  // _pref = [[UIPreferencesTable alloc] initWithFrame: CGRectMake(0, 300, rect.size.width, 65)];
+  // 
+  // [_pref setDataSource: self];
+  // [_pref setDelegate: self];
+  // // [_pref setBottomBufferHeight: 0];
+  // [_pref setCentersContent: YES];
+  // 
+  // [textView addSubview: _pref];
+  //  
+  // [_pref reloadData];
+	  
   numBlocks = 4;
   blockSize = 77.0f;
   
@@ -187,53 +238,140 @@
 
   lastHole = [self openSpot];
   
-  isMixing = YES;
-  [textView setText: @"Mixing..."];
+  [self mixTiles];
   
-  int mixes = 40;
+  [mainView addSubview: textView];
+  [window setContentView:mainView];
+  [window setNeedsDisplay];
+  
+  // status = [[UITextLabel alloc] initWithFrame: CGRectMake(82, 352, 100, 50)];
+  // CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+  // float backgroundcomponents[4] = {0,0,0,0};  
+  // [status setBackgroundColor: CGColorCreate(colorSpace, backgroundcomponents)];
+  // 
+  // [textView addSubview: status];
+  
+  // [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(showStatus) userInfo:nil repeats:YES];
+}
+
+- (void) showStatus
+{
+  // NSString *text;
+  // if (isMoving) {
+  //   text = @"Moving...";
+  // }
+  // else {
+  //   text = @"Not moving";
+  // }
+  // [status setText:text];
+}
+
+- (void) mixTiles
+{
+  isMixing = YES;
+  
   int c;
-  for (c=0; c<mixes; c++) {
+  for (c=0; c<MIXES; c++) {
     [NSTimer scheduledTimerWithTimeInterval:.2 * c target:self selector:@selector(moveRandomBlockToOpen) userInfo:nil repeats:NO];
   }
   
-  [NSTimer scheduledTimerWithTimeInterval:.2 * (mixes+1) target:self selector:@selector(doneMixing) userInfo:nil repeats:NO];
+  [NSTimer scheduledTimerWithTimeInterval:.2 * (MIXES+1) target:self selector:@selector(doneMixing) userInfo:nil repeats:NO];
+}
 
-  [mainView addSubview: textView];
-  [window setContentView:mainView];
-  [window setNeedsDisplay];  
+- (int)preferencesTable:(UIPreferencesTable *)aTable numberOfRowsInGroup:(int)group
+{
+  return 1;
+}
+
+- (int)numberOfGroupsInPreferencesTable:(UIPreferencesTable *)aTable {
+  NSLog(@"number of groups");
+  return 1;
+}
+
+- (UIPreferencesTableCell *)preferencesTable:(UIPreferencesTable *)aTable cellForRow:(int)row inGroup:(int)group
+{
+  UIPreferencesTableCell *cell;
+  
+  if (row > 0) {
+    cell = [[UIPreferencesTextTableCell alloc] init];
+    [cell setTitle:@"Gravity"];
+  }
+  else {
+    cell = [[UIPreferencesTableCell alloc] init];
+    touchSwitch = [[UISwitchControl alloc] initWithFrame: CGRectMake(100, 355, 120, 40)];
+    // [touchSwitch setLeftSwitchTitle:@"Gravity"];
+    // [touchSwitch setRightSwitchTitle:@"Touch"];
+    [touchSwitch createSliderKnobView];
+    [touchSwitch setAlternateColors: YES];
+    [cell addSubview: touchSwitch];
+  }
+  
+  return cell;
+}
+
+- (float)preferencesTable:(UIPreferencesTable *)aTable heightForRow:(int)row inGroup:(int)group withProposedHeight:(float)proposed 
+{
+  return 55;
+}
+
+- (void) gameWon
+{
+  isPlaying = NO;
+  
+  if ([timer isValid]) {
+    [timer invalidate];
+  }
+  // [timer release];
+  
+  time_t timeNow = time(NULL);
+  time_t gameTime = timeNow - startTime;
+
+  NSArray *buttons = [NSArray arrayWithObjects:@"OK", nil];
+  UIAlertSheet *alertSheet = [[UIAlertSheet alloc] initWithTitle:@"You Won!" buttons:buttons defaultButtonIndex:1 delegate:self context:self];
+  NSString *winString = [NSString stringWithFormat:@"You won in %i seconds\nYou made %i moves", gameTime, moves];
+  [alertSheet setBodyText:winString];
+  [alertSheet popupAlertAnimated:YES];
+  
+  [navBar showButtonsWithLeftTitle: nil rightTitle: @"Scramble" leftBack: NO];
+}
+
+- (void)navigationBar:(UINavigationBar*)bar buttonClicked:(int)button
+{
+  [self mixTiles];
+  [navBar showButtonsWithLeftTitle: nil rightTitle: nil leftBack: NO];
 }
 
 - (void) doneMixing
 {
+  isPlaying = YES;
+  startTime = time(NULL);
+  NSLog(@"Game start time %i", startTime);
   isMixing = NO;
   moves = 0;
-  [textView setText: @"Done Mixing... rotate to play"];
-  timer = [NSTimer scheduledTimerWithTimeInterval:.8 target:self selector:@selector(checkPieces) userInfo:nil repeats:YES];
+  // [textView setText: @"Done Mixing... rotate to play"];
+  timer = [NSTimer scheduledTimerWithTimeInterval:.4 target:self selector:@selector(checkPieces) userInfo:nil repeats:YES];
 }
 
 - (void) checkPieces
 {
-  if (moves < 4) {
-    [textView setText: @"Tilt your phone."];
-  }
-  else {
-    [textView setText: @""];
-  }
-  
-  // NSString *xstring = [NSString stringWithFormat:@"checking... angle:%f", angle];
-  // [textView setText:xstring];
-  [self dropBlockInDirection: angle];
-  
-  // check for win condition.
-  if ([self checkForWin]) {
-    [textView setText: @"YOU WON!!!"];
-    [timer invalidate];
+  if (isPlaying) {
+    if (moves < 4) {
+      [textView setText: @"Tilt your phone."];
+    }
+    else {
+      [textView setText: @""];
+    }
 
-    NSArray *buttons = [NSArray arrayWithObjects:@"OK", nil];
-    UIAlertSheet *alertSheet = [[UIAlertSheet alloc] initWithTitle:@"You Won!" buttons:buttons defaultButtonIndex:1 delegate:self context:self];
-    NSString *winString = [NSString stringWithFormat:@"You have won some amount of time..\nYou made %i moves", moves];
-    [alertSheet setBodyText:winString];
-    [alertSheet popupAlertAnimated:YES];
+    // NSString *xstring = [NSString stringWithFormat:@"checking... angle:%f", angle];
+    // [textView setText:xstring];
+    if (!isMoving) {
+      [self dropBlockInDirection: angle];
+    }
+
+    // check for win condition.
+    if ([self checkForWin]) {
+      [self gameWon];
+    }    
   }
 }
 

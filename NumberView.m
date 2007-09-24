@@ -12,7 +12,10 @@
   
   if (theNumber > 0) {
     NSString *img = [NSString stringWithFormat:@"tile%i.png", theNumber];
-    [self setImage: [UIImage applicationImageNamed:img]];    
+    UIImageView *iv = [[UIImageView alloc] initWithImage:[UIImage applicationImageNamed:img]];
+    [self addSubview: iv];
+    [iv release];
+    // [self setImage: [UIImage applicationImageNamed:img]];    
   }
   
   number = theNumber;
@@ -29,7 +32,7 @@
 {
   [UIView beginAnimations:nil];
   [UIView setAnimationCurve:kUIAnimationCurveEaseInEaseOut];
-  [UIView setAnimationDuration:.4];
+  [UIView setAnimationDuration:MOVESPEED];
   [self setOrigin:newOrigin];
   [UIView endAnimations];
 }

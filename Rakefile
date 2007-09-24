@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'net/ssh'
 require 'open3'
 require 'open-uri'
 
@@ -64,6 +63,31 @@ end
 
 task :test do
   sh %Q{ssh iphone /Applications/#{TARGET}.app/#{TARGET}}
+end
+
+task :run do
+  Open3.popen3("ssh iphone") do |stdin, stdout, stderr|
+    sleep 0.3
+    stdin.puts "/Applications/#{TARGET}.app/#{TARGET}"
+    sleep 0.3
+    stdin.puts "ps ax | grep #{TARGET}.app | head -1 | awk '{print $1}'"
+    sleep 0.2
+    pid = stdout.gets
+    broken = false;
+    
+    puts "pid = #{pid}"
+    
+    trap("INT") { broken = true }
+    loop do
+      if broken
+        sh %Q{ssh iphone kill #{pid}}
+        stdout.close
+        break
+      else
+        puts stdout.gets  
+      end
+    end
+  end
 end
 
 task :build_install_and_test => [:build, :package, :copy_to_iphone]
