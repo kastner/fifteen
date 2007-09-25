@@ -6,6 +6,7 @@
 #import <UIKit/UITextLabel.h>
 #import <UIKit/UIAlertSheet.h>
 #import <UIKit/UINavigationBar.h>
+#import <UIKit/UINavigationBarBackground.h>
 #import <UIKit/UINavigationItem.h>
 #import <UIKit/UISwitchControl.h>
 
@@ -16,6 +17,7 @@
 #import "NumberView.h"
 
 #define MIXES 40
+#define THRESHOLD 40
 
 @interface FifteenApplication : UIApplication {
   float blockSize;

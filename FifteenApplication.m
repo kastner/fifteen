@@ -41,28 +41,27 @@
 {
   // [textView setText:@"dropping"];
   
-  int threshold = 38;
   int x,y = 0;
   
-  if (toAngle <= (0 + threshold) && toAngle > (0 - threshold)) {
+  if (toAngle <= (0 + THRESHOLD) && toAngle > (0 - THRESHOLD)) {
     x = 1;
     y = 0;
     // [textView setText:@"0"];
   }
   
-  if (toAngle <= (-90 + threshold) && toAngle > (-90 - threshold)) {
+  if (toAngle <= (-90 + THRESHOLD) && toAngle > (-90 - THRESHOLD)) {
     x = 0;
     y = -1;
     // [textView setText:@"-90"];
   }
   
-  if ((toAngle <= (180 + threshold) && toAngle > (180 - threshold)) || (toAngle <= (-180 + threshold) && toAngle > (-180 - threshold))) {
+  if ((toAngle <= (180 + THRESHOLD) && toAngle > (180 - THRESHOLD)) || (toAngle <= (-180 + THRESHOLD) && toAngle > (-180 - THRESHOLD))) {
     x = -1;
     y = 0;
     // [textView setText:@"180"];
   }
   
-  if (toAngle <= (90 + threshold) && toAngle > (90 - threshold)) {
+  if (toAngle <= (90 + THRESHOLD) && toAngle > (90 - THRESHOLD)) {
     x = 0;
     y = 1;
     // [textView setText:@"90"];
@@ -177,7 +176,7 @@
 	navBar = [[UINavigationBar alloc] init];
 	[navBar setFrame:CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, 45.0f)];
   [navBar setBarStyle:0];
-  // [navBar setImage:[UIImage applicationImageNamed:@"navbar.png"]];
+  [navBar setImage:[UIImage applicationImageNamed:@"bar.png"]];
 	
 	[navBar setDelegate:self];
 	[navBar enableAnimation];
