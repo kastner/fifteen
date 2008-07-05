@@ -1,0 +1,6 @@
+15
+==
+
+an iPhone game by Erik Kastner <kastner@gmail.com>
+
+15 is a game I made for the "Community SDK" and distributed through "Installer.app". It is now being altered to work on the official SDK
